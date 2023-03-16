@@ -44,9 +44,11 @@ app.post('/generate', express.urlencoded({ extended: true }), async (req, res) =
       model: 'text-davinci-003',
       prompt: `What's the deal with ${company}?`,
       max_tokens: 64,
+      temprature: 0,
       n: 1,
-      stop: '\n',
     });
+    
+    console.log(response)
 
     // Send the response back to the user
     res.send(`
