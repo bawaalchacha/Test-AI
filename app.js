@@ -1,59 +1,74 @@
-const express = require("express");
+// Import the required libraries
+const express = require('express');
+const openai = require('openai');
+
+// Set up your OpenAI API key
+const OPENAI_API_KEY = 'your_api_key_here';
+
+// Initialize the API client
+const api = new openai.AuthenticatedApiClient(OPENAI_API_KEY);
+
+// Set up the web server
 const app = express();
-const port = process.env.PORT || 3001;
+const port = 3000;
 
-app.get("/", (req, res) => res.type('html').send(html));
+// Serve the home page
+app.get('/', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>Funny Mean Response Generator</title>
+      </head>
+      <body>
+        <h1>Funny Mean Response Generator</h1>
+        <form action="/generate" method="POST">
+          <label for="company">Enter a company name:</label>
+          <input type="text" id="company" name="company" required>
+          <button type="submit">Generate</button>
+        </form>
+      </body>
+    </html>
+  `);
+});
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+// Handle the generation request
+app.post('/generate', express.urlencoded({ extended: true }), async (req, res) => {
+  try {
+    // Get the company name from the request body
+    const company = req.body.company;
 
+    // Generate a response using the OpenAI GPT API
+    const response = await api.completions.create({
+      engine: 'text-davinci-002',
+      prompt: `What's the deal with ${company}?`,
+      max_tokens: 64,
+      n: 1,
+      stop: '\n',
+    });
 
-const html = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello from Render!</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          disableForReducedMotion: true
-        });
-      }, 500);
-    </script>
-    <style>
-      @import url("https://p.typekit.net/p.css?s=1&k=vnd5zic&ht=tk&f=39475.39476.39477.39478.39479.39480.39481.39482&a=18673890&app=typekit&e=css");
-      @font-face {
-        font-family: "neo-sans";
-        src: url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff2"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("opentype");
-        font-style: normal;
-        font-weight: 700;
-      }
-      html {
-        font-family: neo-sans;
-        font-weight: 700;
-        font-size: calc(62rem / 16);
-      }
-      body {
-        background: white;
-      }
-      section {
-        border-radius: 1em;
-        padding: 1em;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-right: -50%;
-        transform: translate(-50%, -50%);
-      }
-    </style>
-  </head>
-  <body>
-    <section>
-      Hello from Render!
-    </section>
-  </body>
-</html>
-`
+    // Send the response back to the user
+    res.send(`
+      <html>
+        <head>
+          <title>Funny Mean Response Generator</title>
+        </head>
+        <body>
+          <h1>Funny Mean Response Generator</h1>
+          <p>Here's what I think of ${company}:</p>
+          <blockquote>${response.choices[0].text.trim()}</blockquote>
+          <form action="/" method="GET">
+            <button type="submit">Back</button>
+          </form>
+        </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Oops, something went wrong!');
+  }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
+});
