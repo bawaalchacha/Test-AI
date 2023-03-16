@@ -40,7 +40,7 @@ app.post('/generate', express.urlencoded({ extended: true }), async (req, res) =
     const company = req.body.company;
 
     // Generate a response using the OpenAI GPT API
-    const response = await opanai.createCompletion({
+    const response = await openai.createCompletion({
       engine: 'text-davinci-002',
       prompt: `What's the deal with ${company}?`,
       max_tokens: 64,
