@@ -1,12 +1,14 @@
 // Import the required libraries
 const express = require('express');
-const openai = require('openai');
+const { Configuration, OpenAIApi } = require("openai");
 
 // Set up your OpenAI API key
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-// Initialize the API client
-const api = new openai.AuthenticatedApiClient(OPENAI_API_KEY);
+const configuration = new Configuration({
+  apiKey: OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
 
 // Set up the web server
 const app = express();
@@ -38,7 +40,7 @@ app.post('/generate', express.urlencoded({ extended: true }), async (req, res) =
     const company = req.body.company;
 
     // Generate a response using the OpenAI GPT API
-    const response = await api.completions.create({
+    const response = await opanai.createCompletion({
       engine: 'text-davinci-002',
       prompt: `What's the deal with ${company}?`,
       max_tokens: 64,
@@ -55,7 +57,7 @@ app.post('/generate', express.urlencoded({ extended: true }), async (req, res) =
         <body>
           <h1>Funny Mean Response Generator</h1>
           <p>Here's what I think of ${company}:</p>
-          <blockquote>${response.choices[0].text.trim()}</blockquote>
+          <blockquote>${response.data.choices[0].text.trim()}</blockquote>
           <form action="/" method="GET">
             <button type="submit">Back</button>
           </form>
