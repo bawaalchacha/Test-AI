@@ -3,7 +3,7 @@ const express = require('express');
 const openai = require('openai');
 
 // Set up your OpenAI API key
-const OPENAI_API_KEY = 'your_api_key_here';
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 // Initialize the API client
 const api = new openai.AuthenticatedApiClient(OPENAI_API_KEY);
